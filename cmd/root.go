@@ -5,19 +5,24 @@ import (
 	"os"
 
 	"github.com/inabajunmr/treview/github"
-
 	"github.com/spf13/cobra"
 )
 
 var rootCmd = &cobra.Command{
 	Use: "treview is cli viewer for GitHub Trending.",
 	Run: func(cmd *cobra.Command, args []string) {
+
 		l, err := cmd.Flags().GetString("lang")
 		if err != nil {
 			os.Exit(1)
 		}
 
 		s, err := cmd.Flags().GetString("span")
+		if err != nil {
+			os.Exit(1)
+		}
+
+		n, err := cmd.Flags().GetBool("new")
 		if err != nil {
 			os.Exit(1)
 		}
@@ -29,6 +34,8 @@ var rootCmd = &cobra.Command{
 			println(err)
 			os.Exit(1)
 		}
+
+		// TODO filter by already seen repository
 
 		for _, repo := range repos {
 			fmt.Println("------------------------")
@@ -48,4 +55,5 @@ func Execute() {
 func init() {
 	rootCmd.Flags().StringP("lang", "l", "", "filter by lang")
 	rootCmd.Flags().StringP("span", "s", "Today", "trending span")
+	rootCmd.Flags().BoolP("new", "n", false, "only new comer")
 }
