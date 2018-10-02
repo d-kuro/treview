@@ -1,18 +1,29 @@
 package filter
 
 import (
+	"strings"
+
 	"github.com/inabajunmr/kevaf"
 	"github.com/inabajunmr/treview/github"
 )
 
-// FilterOnlyNewComer filter only new comer(user never see)
-func FilterOnlyNewComer(repos []github.Repository) {
-	// check dir for storage for treview
+// OnlyNewComer filter only new comer(user never see)
+func OnlyNewComer(repos []github.Repository) {
+	// TODO  check dir for storage for treview
 	path := "."
-	kvs := kevaf.NewMap(path)
-	for repo := range repos {
-		// create key from repo
+	kvs, _ := kevaf.NewMap(path)
+	// TODO check err
+
+	for _, repo := range repos {
+		key := createKey(repo.Name)
+
+		// TODO create json for save
+
 		// get value from map
+		v, err := kvs.Get(key)
+		if err != nil {
+			continue
+		}
 
 		// if exist
 		// check first show date
@@ -25,6 +36,9 @@ func FilterOnlyNewComer(repos []github.Repository) {
 
 		// if not exist
 		// Put
-		a := kvs.Get("")
 	}
+}
+
+func createKey(v string) string {
+	return strings.Replace(strings.Replace(v, " ", "", -1), "-", "", -1)
 }
