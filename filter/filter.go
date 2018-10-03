@@ -1,11 +1,18 @@
 package filter
 
 import (
+	"encoding/json"
 	"strings"
+	"time"
 
 	"github.com/inabajunmr/kevaf"
 	"github.com/inabajunmr/treview/github"
 )
+
+type readRepository struct {
+	repo     github.Repository
+	readDate time.Time
+}
 
 // OnlyNewComer filter only new comer(user never see)
 func OnlyNewComer(repos []github.Repository) {
@@ -17,28 +24,39 @@ func OnlyNewComer(repos []github.Repository) {
 	for _, repo := range repos {
 		key := createKey(repo.Name)
 
-		// TODO create json for save
-
-		// get value from map
 		v, err := kvs.Get(key)
 		if err != nil {
+			json.Marshal(readRepository{repo, time.Now()})
 			continue
 		}
 
-		// if exist
+		var repo readRepository
+		err = json.Unmarshal(v, repo)
+		// TODO err
+
 		// check first show date
+		isSameDate := isSameDate(repo.readDate, time.Now())
 
 		// if not same day
-		// filter
-
-		// if same day
-		// not filter
-
-		// if not exist
-		// Put
+		if isSameDate {
+			// TODO add to repos
+			continue
+		}
 	}
 }
 
 func createKey(v string) string {
 	return strings.Replace(strings.Replace(v, " ", "", -1), "-", "", -1)
+}
+
+func isSameDate(time1 time.Time, time2 time.Time) bool {
+	if time1.Year() != time2.Year() {
+		return false
+	}
+
+	if time1.YearDay() != time2.YearDay() {
+		return false
+	}
+
+	return true
 }
