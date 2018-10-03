@@ -15,34 +15,42 @@ type readRepository struct {
 }
 
 // OnlyNewComer filter only new comer(user never see)
-func OnlyNewComer(repos []github.Repository) {
+func OnlyNewComer(repos []github.Repository) []github.Repository {
 	// TODO  check dir for storage for treview
 	path := "."
 	kvs, _ := kevaf.NewMap(path)
 	// TODO check err
+
+	filteredRepos := make([]github.Repository, 0)
 
 	for _, repo := range repos {
 		key := createKey(repo.Name)
 
 		v, err := kvs.Get(key)
 		if err != nil {
-			json.Marshal(readRepository{repo, time.Now()})
+			json, _ := json.Marshal(readRepository{repo, time.Now()})
+			// TODO err
+			kvs.Put(key, json)
+			// TODO err
+			filteredRepos = append(filteredRepos, repo)
 			continue
 		}
 
-		var repo readRepository
-		err = json.Unmarshal(v, repo)
+		var readRepo readRepository
+		json.Unmarshal(v, readRepo)
 		// TODO err
 
 		// check first show date
-		isSameDate := isSameDate(repo.readDate, time.Now())
+		isSameDate := isSameDate(readRepo.readDate, time.Now())
 
 		// if not same day
 		if isSameDate {
-			// TODO add to repos
+			filteredRepos = append(filteredRepos, repo)
 			continue
 		}
 	}
+
+	return filteredRepos
 }
 
 func createKey(v string) string {
